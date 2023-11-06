@@ -1,0 +1,78 @@
+#taking inputs from user
+in r1
+in r2
+in r3
+
+#values for conditional tests
+sub r4 r1 r2 	
+sub r5 r2 r3
+sub r6 r1 r3
+
+#conditional statements
+
+#r1 <= r2 <= r3
+1cond1:	ble r4	&1cond2		#checks if r1 <= r2
+
+	beq r0 &2cond1		#unconditional branch to check next test
+
+1cond2:	ble r5 &case2		#checks if r2 <= r3
+
+	beq r0 &2cond1		
+
+#r3 <= r2 <= r1
+2cond1: bge r4	&2cond2		#checks if r1 >= r2
+
+	beq r0 &3cond1		
+
+2cond2:	bge r5 &case2		#checks if r2 >= r3
+
+	beq r0 &3cond1		
+
+#r2 <= r1 <= r3
+3cond1: bge r4 &3cond2		#checks if r1 >= r2
+
+	beq r0 &4cond1	
+
+3cond2:	ble r6 &case1		#checks if r3 >= r1
+	
+	beq r0 &4cond1
+
+#r3 <= r1 <= r2
+4cond1: bge r6 &4cond2		#checks if r1 >= r3
+	
+	beq r0 &5cond1
+
+4cond2: ble r4 &case1		#checks if r2 >= r1
+	beq r0 &5cond1
+
+#r1 <= r3 <= r2
+5cond1: ble r6 &5cond2		#checks if r3 >= r1
+	
+	beq r0 &6cond1
+
+5cond2:	bge r5 &case3		#checks if r2 >= r3
+
+	beq r0 &6cond1
+
+#r2 <= r3 <= r1
+6cond1: ble r5 &6cond2		#checks if r3 >= r2
+	
+	beq r0 &end
+
+6cond2: bge r6 &case3		#checks if r1 >= r3
+
+	beq r0 &end
+
+#output
+case1:  out r1
+
+	beq r0 &end 	#to avoid trailing answers
+
+case2:	out r2
+
+	beq r0 &end
+
+case3:	out r3
+
+end: .halt
+

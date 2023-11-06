@@ -1,0 +1,52 @@
+#code section
+inputLoop: 	in r1		#input
+		
+		lli r3 &list	#resets address back to list[0]
+
+		lui r3 &list
+
+		beq r1 &end	#if 0, end loop
+		
+		and r5 r5 r0 	#resets for-loop counter
+
+		and r7 r7 r0	#resets the repeating number counter
+
+		beginLoop: 	sub r4 r5 r2	#r4 is for-loop, r5 is the for-loop counter
+				
+				bge r4 &endLoop	#when counter reaches end of array, end loop
+
+				lw r6 r3 0	#loads the word in the current element of array
+
+				sub r6 r6 r1	#checks if input is equal to array element
+
+				beq r6 &count	#if input is equal to element add 1 to counter
+
+				increment: addi r5 r5 1		#increases the for-loop counter
+
+				addi r3 r3 1	#moves through the list one by one each loop
+				
+				beq r0 &beginLoop	#restart loop
+
+				count: addi r7 r7 1	#increments counter
+
+				       beq r0 &increment
+
+		endLoop: 	sw r1 r3 0	#stores value in last element of array
+
+				addi r7 r7 1 	#adds 1 to repeated number counter to include new input
+
+				out r7		#outputs the number of repeated numbers
+
+				addi r2 r2 1 	#r2 is the counter for array size
+
+		
+		
+
+		beq r0 &inputLoop
+
+end: .halt
+
+
+
+#data section
+list: .fill 0

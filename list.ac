@@ -1,0 +1,185 @@
+# Kevin Bui
+# list.ac
+# This program implements a linked list that prints out the values 
+# of elements in the list, traverses the list, and prints out the number of nodes in the list.
+
+# main: implements a menu for user to choose actions regarding the linked list and to close program,
+# uses r1 to store user input and r2 as conditional branch
+
+# one: loads the head pointer into the stack pointer, asks user for a value, then calls addFront function
+
+# two: calls the print function
+
+# three: calls the count function, outputs r4 after counting number of nodes in list
+
+# menu: loop to ask user for a valid input
+
+# addFront: creates new node on the heap, points next to head pointer, then sets new node as head
+
+# print: starting at head, function outputs value in node->val, then sets next value to
+# r1 and loops until pointer is null, nothing if list empty
+
+#count: recursive function that adds 1 to r4 until pointer reaches null
+
+
+
+
+# activation record for main
+# 0. head
+
+# code section
+
+main: lli r6 0x00
+lui r6 0x80	#initialize frame pointer
+addi r7 r6 1	#initialize stack pointer
+# head starts as null
+sw r0 r6 0
+
+# get input for menu
+menu: in r1
+
+# checks if 1 is input
+addi r2 r1 -1
+beq r2 &one
+
+# checks if 2 is input
+addi r2 r1 -2
+beq r2 &two
+
+# checks if 3 is input
+addi r2 r1 -3
+beq r2 &three
+
+# checks if 4 is input
+addi r2 r1 -4
+beq r2 &end
+
+# resets menu if input is invalid
+beq r0 &menu
+
+# addFront caller
+one: lw r1 r6 0		# loads address of head
+sw r1 r7 1  		# stores node head in offset 1
+in r1			# gets user input for value of node
+sw r1 r7 2		# stores node val in offset 2
+lli r1 &addFront
+lui r1 &addFront	# initializes r1 to addFront address
+jalr r1 r5 		# jump to addFront function
+sw r4 r6 0		# stores new head in main
+beq r0 &menu		# starts menu loop after task complete
+
+# print caller
+two: lw r1 r6 0 	# loads address of head
+sw r1 r7 1		# stores node head in offset 1
+lli r1 &print
+lui r1 &print		# initializes r1 to print address
+jalr r1 r5 		# jump and link to print
+beq r0 &menu		# starts menu loop after task complete
+
+# count caller
+three: lw r1 r6 0 	# loads address of head
+sw r1 r7 1 		# stores node head in offset 1
+add r4 r0 r0		# sets the return value register to 0 before count starts
+lli r1 &count
+lui r1 &count		# initializes r1 to count address
+jalr r1 r5 		# jump and link to count
+out r4			# outputs the count		
+beq r0 &menu		# starts menu loop after task complete
+
+
+end: .halt
+
+
+# Activation record for addFront:
+# 0. previous frame ptr
+# 1. head parameter
+# 2. val parameter
+# 3. return address
+
+addFront: sw r6 r7 0	# store prev frame ptr
+addi r6 r7 0		# move frame ptr to stack ptr
+addi r7 r7 4		# move stack ptr to end
+sw r5 r6 3		# store return address
+
+lli r1 &heapPtr
+lui r1 &heapPtr		# address of heapPtr in r1
+
+lw r2 r1 0		# put next address into r2 (new node)
+
+addi r3 r2 2		# increment by 2 (size of node)
+
+sw r3 r1 0		# update heap ptr
+
+lw r1 r6 2		# loads the value input
+
+sw r1 r2 0		# stores val into node->val, val is offset 0 in node
+
+lw r1 r6 1		# loads head into r1
+
+sw r1 r2 1 		# stores current head into node->next, offset 1
+
+# return from the function
+addi r4 r2 0		# puts address of new head in r4
+lw r5 r6 3		# restores return address
+addi r7 r6 0		# move stack ptr to frame ptr
+lw r6 r7 0		# load prev frame ptr
+jalr r5 r0		# return
+
+
+# Activation record for print
+# 0. previous frame ptr
+# 1. head
+# 2. return address
+
+print: sw r6 r7 0	# store prev frame ptr
+addi r6 r7 0		# move frame ptr to stack ptr
+addi r7 r7 2		# move stack ptr to end
+sw r5 r6 2		# store return address
+
+lw r1 r6 1		# loads head into r1
+
+startLoop: beq r1 &stopLoop	# checks if ptr is null, then stop
+lw r2 r1 0		# loads val into r2
+out r2			# outputs value stored in node
+lw r1 r1 1		# loads next into r1
+beq r0 &startLoop
+
+stopLoop: lw r5 r6 2	# restores return address
+addi r7 r6 0		# move stack ptr to frame ptr
+lw r6 r7 0		# load prev frame ptr
+jalr r5 r0		# return
+
+
+
+# Activation record for count
+# 0. prev frame ptr
+# 1. head
+# 2. return address
+
+count: sw r6 r7 0	# store prev frame ptr
+addi r6 r7 0		# move frame ptr to stack ptr
+addi r7 r7 3		# move stack ptr to end
+sw r5 r6 2		# store return address
+
+# if head is null
+lw r1 r6 1		# load head into r1
+beq r1 &return		# if head is null, return from function
+
+# recursion
+addi r4 r4 1		# increments count by 1 every recursive step
+lw r2 r1 1		# load node->next into r2, offset 1 is node->next
+sw r2 r7 1		# stores next node in next activation record
+lli r1 &count
+lli r1 &count		# initializes r1 to count, recursion
+jalr r1 r5		# jump to count function
+
+return: lw r5 r6 2	# restore return address
+addi r7 r6 0		# move stack ptr to frame ptr
+lw r6 r7 0		# load prev frame ptr
+jalr r5 r0		# return
+
+
+
+# heap section
+heapPtr: .fill &heap
+heap: .fill 0

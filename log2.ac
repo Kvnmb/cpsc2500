@@ -1,0 +1,26 @@
+#input
+in r1
+
+#if input is 0 or less end program	   
+ble r1 &end
+
+#counter for the exponent
+lli r2 1	#counter
+
+#number to compare with input
+lli r3 2	#base starting number
+
+#loop
+loop: 	sub r4 r3 r1	#subtract for round-up comparison
+	
+	bge r4 &output  #if the input is less than the comparison number then end loop
+      	
+	addi r2 r2 1	#add 1 to the counter every iteration of loop for exponent increment
+	
+	shf r3 r3 1	#double the comparison number for powers of 2
+
+	beq r0 &loop	#unconditional to restart loop
+
+output: out r2
+
+end: .halt
